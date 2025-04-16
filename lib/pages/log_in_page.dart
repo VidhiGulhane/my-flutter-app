@@ -10,9 +10,8 @@ import 'package:recipe_app/pages/sign_up_page.dart';
 import 'package:recipe_app/widgets/custom_button.dart';
 import 'package:recipe_app/widgets/custom_text_field.dart';
 
-// ignore: must_be_immutable
 class LogInPage extends StatefulWidget {
-  LogInPage({super.key});
+  const LogInPage({super.key});
   static String id = "logInPage";
 
   @override
@@ -21,9 +20,7 @@ class LogInPage extends StatefulWidget {
 
 class _LogInPageState extends State<LogInPage> {
   String? email, password;
-
-  GlobalKey<FormState> formstate = GlobalKey();
-
+  final GlobalKey<FormState> formState = GlobalKey<FormState>();
   bool isLoading = false;
 
   @override
@@ -31,7 +28,7 @@ class _LogInPageState extends State<LogInPage> {
     return ModalProgressHUD(
       color: Colors.black,
       inAsyncCall: isLoading,
-      progressIndicator: CircularProgressIndicator(color: Colors.black),
+      progressIndicator: const CircularProgressIndicator(color: Colors.black),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -45,19 +42,15 @@ class _LogInPageState extends State<LogInPage> {
           ),
         ),
         body: Form(
-          key: formstate,
+          key: formState,
           child: ListView(
             children: [
-              Container(
-                child: Image.asset(
-                  "assets/secound_one.png",
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+              Image.asset(
+                "assets/secound_one.png",
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Text(
                 "Welcome Back",
                 style: GoogleFonts.epilogue(
@@ -67,35 +60,39 @@ class _LogInPageState extends State<LogInPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               CustomTextField(
                 label: "Email",
-                onChanged: (data) {
-                  email = data;
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter your email";
+                  }
+                  return null;
                 },
+                onChanged: (data) => email = data,
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 12),
               CustomTextField(
                 label: "Password",
                 obscure: true,
-                onChanged: (data) {
-                  password = data;
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter your password";
+                  }
+                  return null;
                 },
+                onChanged: (data) => password = data,
               ),
-              const SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 15),
               GestureDetector(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                onTap: () {
+                  // Handle Forgot Password
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18),
                   child: Text(
                     "Forget password?",
-                    style: GoogleFonts.epilogue(
+                    style: TextStyle(
                       color: Color(0xff8A7361),
                       fontSize: 16,
                       decoration: TextDecoration.underline,
@@ -103,72 +100,22 @@ class _LogInPageState extends State<LogInPage> {
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 13),
                 child: CustomButtonLogIn(
                   text: "Log in",
-                  onTap: () async {
-                    if (formstate.currentState!.validate()) {
-                      try {
-                        isLoading = true;
-                        setState(() {});
-                        // ignore: unused_local_variable
-                        final credential = await FirebaseAuth.instance
-                            .signInWithEmailAndPassword(
-                          email: email!,
-                          password: password!,
-                        );
-                        isLoading = false;
-                        showSnackBarr(
-                            context,
-                            'You have successfully logged in.',
-                            'Welcome to Foudiy',
-                            ContentType.success);
-                        Navigator.pushNamed(context, Home.id, arguments: email);
-                      } on FirebaseAuthException catch (e) {
-                        if (e.code == "invalid-email") {
-                          showSnackBarr(
-                              context,
-                              "The email address is badly formatted.",
-                              'Error',
-                              ContentType.failure);
-                        } else if (e.code == 'invalid-credential') {
-                          showSnackBarr(
-                              context,
-                              "No user found for that email.",
-                              'Error',
-                              ContentType.failure);
-                        }
-                      } catch (e) {
-                        showSnackBar(context, e.toString());
-                      }
-                      isLoading = false;
-                      setState(() {});
-                    }
-                  },
+                  onTap: _handleLogin,
                 ),
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "New User? ",
-                    style: GoogleFonts.epilogue(
-                      color: kTitleColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const Text("New User? ",
+                      style: TextStyle(color: Colors.black, fontSize: 16)),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, SignUpPage.id);
-                    },
+                    onTap: () => Navigator.pushNamed(context, SignUpPage.id),
                     child: Text(
                       "Sign Up",
                       style: GoogleFonts.epilogue(
@@ -185,5 +132,50 @@ class _LogInPageState extends State<LogInPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogin() async {
+    if (formState.currentState == null || !formState.currentState!.validate()) {
+      showSnackBarr(context, "Please fill all fields correctly.", 'Error',
+          ContentType.failure);
+      return;
+    }
+
+    try {
+      setState(() => isLoading = true);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email!,
+        password: password!,
+      );
+
+      // ignore: use_build_context_synchronously
+      showSnackBarr(context, 'Successfully logged in!', 'Welcome to Foudiy',
+          ContentType.success);
+      // ignore: use_build_context_synchronously
+      Navigator.pushNamed(context, Home.id, arguments: email);
+    } on FirebaseAuthException catch (e) {
+      setState(() => isLoading = false);
+
+      if (e.code == 'user-not-found') {
+        // ignore: use_build_context_synchronously
+        showSnackBarr(context, "No user found for that email.", 'Error',
+            ContentType.failure);
+      } else if (e.code == 'wrong-password') {
+        showSnackBarr(
+            // ignore: use_build_context_synchronously
+            context, "Incorrect password.", 'Error', ContentType.failure);
+      } else {
+        // ignore: use_build_context_synchronously
+        showSnackBarr(context, e.message ?? 'Unknown error occurred.', 'Error',
+            ContentType.failure);
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      showSnackBarr(
+          // ignore: use_build_context_synchronously
+          context, "Error: ${e.toString()}", 'Error', ContentType.failure);
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 }

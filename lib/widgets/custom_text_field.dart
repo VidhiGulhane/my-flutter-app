@@ -8,7 +8,7 @@ class CustomTextField extends StatelessWidget {
     required this.label,
     required this.onChanged,
     this.obscure = false,
-    this.type = TextInputType.name,
+    this.type = TextInputType.name, required String? Function(dynamic value) validator,
   });
   bool obscure;
   Function(String)? onChanged;

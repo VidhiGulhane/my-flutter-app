@@ -10,10 +10,9 @@ import 'package:recipe_app/pages/home_page.dart';
 import 'package:recipe_app/widgets/custom_button.dart';
 import 'package:recipe_app/widgets/custom_text_field.dart';
 
-// ignore: must_be_immutable
 class SignUpPage extends StatefulWidget {
-  SignUpPage({super.key});
-  static String id = "sign_in_page";
+  const SignUpPage({super.key});
+  static String id = "signUpPage";
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -21,9 +20,8 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   String? email, password, number, username;
-  var users = FirebaseFirestore.instance.collection("users");
-  GlobalKey<FormState> formstate = GlobalKey();
-
+  final users = FirebaseFirestore.instance.collection("users");
+  final GlobalKey<FormState> formState = GlobalKey<FormState>();
   bool isLoading = false;
 
   @override
@@ -31,33 +29,29 @@ class _SignUpPageState extends State<SignUpPage> {
     return ModalProgressHUD(
       inAsyncCall: isLoading,
       color: Colors.black,
-      progressIndicator: CircularProgressIndicator(color: Colors.black),
+      progressIndicator: const CircularProgressIndicator(color: Colors.black),
       child: Scaffold(
         body: Form(
-          key: formstate,
+          key: formState,
           child: ListView(
             children: [
-              Container(
-                child: Image.asset(
-                  "assets/third_one.png",
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+              Image.asset(
+                "assets/third_one.png",
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
-              const SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 15),
+
+              // Header Row
               Row(
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back),
                   ),
-                  Spacer(
-                    flex: 3,
-                  ),
+                  const Spacer(flex: 3),
                   Text(
-                    "Sign In",
+                    "Sign Up",
                     style: GoogleFonts.epilogue(
                       fontSize: 20,
                       color: kTitleColor,
@@ -65,117 +59,83 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  Spacer(
-                    flex: 4,
-                  ),
+                  const Spacer(flex: 4),
                 ],
               ),
-              const SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 15),
+
+              // Username
               CustomTextField(
                 label: "Username",
-                onChanged: (data) {
-                  username = data;
-                },
+                onChanged: (data) => username = data,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Username is required"
+                    : null,
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 12),
+
+              // Email
               CustomTextField(
                 label: "Email",
-                onChanged: (data) {
-                  email = data;
+                onChanged: (data) => email = data,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Email is required";
+                  }
+                  if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(value)) {
+                    return "Enter a valid email";
+                  }
+                  return null;
                 },
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 12),
+
+              // Phone Number
               CustomTextField(
                 label: "Phone Number",
                 type: TextInputType.phone,
-                onChanged: (data) {
-                  number = data;
+                onChanged: (data) => number = data,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Phone number is required";
+                  }
+                  if (!RegExp(r"^[0-9]{10}$").hasMatch(value)) {
+                    return "Enter a valid 10-digit phone number";
+                  }
+                  return null;
                 },
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 12),
+
+              // Password
               CustomTextField(
                 label: "Password",
                 obscure: true,
-                onChanged: (data) {
-                  password = data;
+                onChanged: (data) => password = data,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Password is required";
+                  }
+                  if (value.length < 6) {
+                    return "Password must be at least 6 characters long";
+                  }
+                  return null;
                 },
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
+
+              // Sign-Up Button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: CustomButtonLogIn(
-                  text: "Sign In",
-                  onTap: () async {
-                    if (formstate.currentState!.validate()) {
-                      try {
-                        isLoading = true;
-                        setState(() {});
-                        // ignore: unused_local_variable
-                        final credential = await FirebaseAuth.instance
-                            .createUserWithEmailAndPassword(
-                          email: email!,
-                          password: password!,
-                        );
-                        print("========================");
-                        users.add({
-                          'user': username,
-                          'favorites': [],
-                          'id': email,
-                          'phone': number,
-                        });
-                        showSnackBarr(
-                            context,
-                            'You have successfully created an account.',
-                            'Welcome to Foudiy',
-                            ContentType.success);
-                        isLoading = false;
-                        setState(() {});
-                        Navigator.pushNamed(context, Home.id, arguments: email);
-                      } on FirebaseAuthException catch (e) {
-                        print(e.code);
-                        if (e.code == "invalid-email") {
-                          showSnackBarr(context, 'Invalid Email', 'Error',
-                              ContentType.failure);
-                        }
-                        if (e.code == 'weak-password') {
-                          showSnackBarr(
-                              context,
-                              'The password provided is too weak.',
-                              'Error',
-                              ContentType.failure);
-                        } else if (e.code == 'email-already-in-use') {
-                          showSnackBarr(
-                              context,
-                              'The account already exists for that email.',
-                              'Error',
-                              ContentType.failure);
-                        }
-                      } catch (e) {
-                        showSnackBarr(
-                            context,
-                            "There is an error. Please try again",
-                            'Error',
-                            ContentType.failure);
-                      }
-                      isLoading = false;
-                      setState(() {});
-                    }
-                  },
+                  text: "Sign Up",
+                  onTap: _signUpUser,
                 ),
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 12),
+
+              // Already Have Account
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -188,9 +148,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context),
                     child: Text(
                       "Log in",
                       style: GoogleFonts.epilogue(
@@ -207,5 +165,64 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _signUpUser() async {
+    if (formState.currentState == null || !formState.currentState!.validate()) {
+      showSnackBarr(context, "Please fill all fields correctly.", 'Error',
+          ContentType.failure);
+      return;
+    }
+
+    try {
+      setState(() => isLoading = true);
+
+      // Register user with Firebase Authentication
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email!,
+        password: password!,
+      );
+
+      // Save additional user details in Firestore
+      await users.doc(userCredential.user!.uid).set({
+        'username': username,
+        'favorites': [],
+        'email': email,
+        'phone': number,
+      });
+
+      // ignore: use_build_context_synchronously
+      showSnackBarr(context, 'Account created successfully.',
+          'Welcome to Foudiy', ContentType.success);
+
+      // ignore: use_build_context_synchronously
+      Navigator.pushNamed(context, Home.id, arguments: email);
+    } on FirebaseAuthException catch (e) {
+      setState(() => isLoading = false);
+      if (e.code == "invalid-email") {
+        // ignore: use_build_context_synchronously
+        showSnackBarr(context, 'Invalid Email.', 'Error', ContentType.failure);
+      } else if (e.code == 'weak-password') {
+        showSnackBarr(
+            // ignore: use_build_context_synchronously
+            context, 'Password is too weak.', 'Error', ContentType.failure);
+      } else if (e.code == 'email-already-in-use') {
+        showSnackBarr(
+            // ignore: use_build_context_synchronously
+            context, 'Email already exists.', 'Error', ContentType.failure);
+      } else {
+        // ignore: use_build_context_synchronously
+        showSnackBarr(context, e.message ?? 'An unknown error occurred.',
+            'Error', ContentType.failure);
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      showSnackBarr(
+          // ignore: use_build_context_synchronously
+          context, "Error: ${e.toString()}", 'Error', ContentType.failure);
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 }

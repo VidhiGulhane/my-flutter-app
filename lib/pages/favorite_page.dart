@@ -14,7 +14,6 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(email);
     List<dynamic> meals = context.watch<FavoriteProvider>().favoriteMeals;
     if (meals.isEmpty) {
       return Scaffold(

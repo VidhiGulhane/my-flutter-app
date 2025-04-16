@@ -25,6 +25,7 @@ class RandomMealWidget extends StatelessWidget {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
+                // ignore: deprecated_member_use
                 color: Colors.grey.withOpacity(0.3),
                 spreadRadius: 3,
                 blurRadius: 7,
@@ -43,6 +44,7 @@ class RandomMealWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(45),
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 4,
                   blurRadius: 5,
@@ -64,7 +66,7 @@ class RandomMealWidget extends StatelessWidget {
         Positioned(
           top: 20,
           left: 59,
-          child: Container(
+          child: SizedBox(
             width: 200,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,6 +108,7 @@ class RandomMealWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
+                    // ignore: deprecated_member_use
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 2,
                     blurRadius: 5,

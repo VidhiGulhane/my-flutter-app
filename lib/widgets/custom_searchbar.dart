@@ -3,9 +3,10 @@ import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/pages/meal_deatails_page.dart';
 
 class CustomSearchBar extends StatefulWidget {
-  const CustomSearchBar({Key? key}) : super(key: key);
+  const CustomSearchBar({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomSearchBarState createState() => _CustomSearchBarState();
 }
 

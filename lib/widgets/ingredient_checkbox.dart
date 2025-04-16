@@ -5,9 +5,10 @@ import 'package:recipe_app/constants.dart';
 class IngredientCheckbox extends StatefulWidget {
   final String detail;
 
-  IngredientCheckbox({required this.detail});
+  const IngredientCheckbox({required this.detail});
 
   @override
+  // ignore: library_private_types_in_public_api
   _IngredientCheckboxState createState() => _IngredientCheckboxState();
 }
 

@@ -14,12 +14,10 @@ class GetStartedPage extends StatelessWidget {
       child: Scaffold(
         body: Column(
           children: [
-            Container(
-              child: Image.asset(
-                "assets/first_one.png",
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+            Image.asset(
+              "assets/first_one.png",
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
             const SizedBox(
               height: 15,

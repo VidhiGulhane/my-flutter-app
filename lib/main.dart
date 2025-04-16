@@ -13,6 +13,7 @@ import 'package:recipe_app/providers/favorite_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,6 +22,9 @@ void main() async {
   );
   runApp(RecipeApp());
 }
+
+
+
 
 class RecipeApp extends StatelessWidget {
   final controller = PageController();
@@ -40,7 +44,7 @@ class RecipeApp extends StatelessWidget {
           GetStartedPage.id: (context) => const GetStartedPage(),
           Home.id: (context) => const Home(),
           CategoriesPage.id: (context) => const CategoriesPage(),
-          MealDetailsPage.id: (context) => MealDetailsPage(),
+          MealDetailsPage.id: (context) => MealDetailsPage(mealName: '',),
           IngredientPage.id: (context) => IngredientPage(),
           SplashScreen.id: (context) => const SplashScreen(),
         },

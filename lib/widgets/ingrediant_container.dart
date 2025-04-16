@@ -39,7 +39,7 @@ class IngrediantContainer extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            Container(
+            SizedBox(
               width: 130,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

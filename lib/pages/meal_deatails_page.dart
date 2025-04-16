@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:provider/provider.dart';
 import 'package:recipe_app/constants.dart';
 import 'package:recipe_app/models/meal.dart';
@@ -10,220 +9,180 @@ import 'package:recipe_app/widgets/error_widget.dart';
 import 'package:recipe_app/widgets/ingredient_checkbox.dart';
 import 'package:recipe_app/widgets/loading_widget.dart';
 import 'package:recipe_app/widgets/tags_container.dart';
+import 'package:recipe_app/widgets/favourite_button.dart';
+import 'review_page.dart';
 
-// ignore: must_be_immutable
-class MealDetailsPage extends StatelessWidget {
-  static String id = 'Deatailed Meal page';
+class MealDetailsPage extends StatefulWidget {
+  final String mealName;
 
-  bool? isFavorite = false;
+  static String id = 'MealDetailsPage';
+
+  const MealDetailsPage({required this.mealName, super.key});
+
+  @override
+  State<MealDetailsPage> createState() => _MealDetailsPageState();
+}
+
+class _MealDetailsPageState extends State<MealDetailsPage> {
+  bool isFavorite = false;
+  String? selectedIngredient;
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> data =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    String mealName = data["meal"];
     return Scaffold(
       appBar: AppBar(
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
+        title: const Text("Meal Details"),
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: FutureBuilder(
-        future: GetMealNameService().getMealName(mealName: mealName),
+      body: FutureBuilder<Meal>(
+        future: GetMealNameService().getMealName(mealName: widget.mealName),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final Meal meal = snapshot.data!;
-            List<String> tags = meal.tags.split(",");
-            List<dynamic> favoriteMeals =
-                context.watch<FavoriteProvider>().favoriteMeals;
-            for (int i = 0; i < favoriteMeals.length; i++) {
-              if (favoriteMeals[i].id == meal.id) {
-                isFavorite = true;
-                break;
-              }
-            }
-            if (meal.id == "") {
-              return const CustomErrorWidget();
-            }
-            List<String> ingredients = meal.ingeredients;
-            List<String> measurements = meal.measure;
-            List<String> details = [];
-            if (ingredients.length == measurements.length) {
-              for (int i = 0; i < meal.ingeredients.length; i++) {
-                details.add(" ${measurements[i]} ${ingredients[i]}");
-              }
-            } else {
-              details = ingredients;
-            }
-            return ListView(
-              children: [
-                SizedBox(
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingWidget();
+          } else if (snapshot.hasError || snapshot.data == null) {
+            return const CustomErrorWidget();
+          }
+
+          final meal = snapshot.data!;
+          final favoriteMeals = context.watch<FavoriteProvider>().favoriteMeals;
+          isFavorite = favoriteMeals.any((favMeal) => favMeal.id == meal.id);
+
+          final List<String> ingredientDetails = (meal.measure.isNotEmpty &&
+                  meal.ingeredients.length == meal.measure.length)
+              ? List.generate(
+                  meal.ingeredients.length,
+                  (i) => "${meal.measure[i]} ${meal.ingeredients[i]}",
+                )
+              : meal.ingeredients;
+
+          return ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              // Meal Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  meal.image,
                   height: 320,
                   width: double.infinity,
-                  child: Image.network(
-                    meal.image,
-                    fit: BoxFit.cover,
-                  ),
+                  fit: BoxFit.cover,
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Text(
-                    meal.name,
-                    style: GoogleFonts.epilogue(
-                      color: kTitleColor,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Container(
-                    height: 50,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, i) => TagsContainer(tag: tags[i]),
-                      itemCount: tags.length,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Text(
-                    "Ingredients",
-                    style: GoogleFonts.epilogue(
-                      color: kTitleColor,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Column(
-                  children: [
-                    for (int i = 0; i < details.length; i++)
-                      IngredientCheckbox(detail: details[i]),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Text(
-                    "Instructions",
-                    style: GoogleFonts.epilogue(
-                      color: kTitleColor,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    meal.instructions,
-                    textAlign: TextAlign.justify,
-                    style: GoogleFonts.epilogue(
-                      color: kTitleColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
-                FavoriteButton(
-                  meal: meal,
-                  isFavorite: isFavorite!,
-                )
-              ],
-            );
-          } else {
-            return LoadingWidget();
-          }
-        },
-      ),
-    );
-  }
-}
+              ),
 
-class FavoriteButton extends StatefulWidget {
-  FavoriteButton({
-    required this.meal,
-    required this.isFavorite,
-  });
+              const SizedBox(height: 16),
 
-  final Meal meal;
-  final bool isFavorite;
-
-  @override
-  State<FavoriteButton> createState() => _FavoriteButtonState();
-}
-
-class _FavoriteButtonState extends State<FavoriteButton> {
-  bool isFavorite = false;
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorite = widget.isFavorite;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 25.0, right: 12, left: 12),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            isFavorite = !isFavorite;
-          });
-          if (isFavorite) {
-            context.read<FavoriteProvider>().addFavoriteMeal(meal: widget.meal);
-          } else {
-            context
-                .read<FavoriteProvider>()
-                .deleteFavoriteMeal(meal: widget.meal);
-          }
-        },
-        child: Container(
-          height: 48,
-          decoration: BoxDecoration(
-            color: Color(0xffF2EDE8),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              isFavorite ? Icon(Icons.star) : Icon(Icons.star_outline),
-              const SizedBox(width: 10),
+              // Meal Name
               Text(
-                isFavorite ? "Remove from favorite" : "Add to favorite",
+                meal.name,
                 style: GoogleFonts.epilogue(
                   color: kTitleColor,
-                  fontSize: 17,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
+              const SizedBox(height: 16),
+
+              // Tags
+              SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: meal.tags.split(",").length,
+                  itemBuilder: (context, index) {
+                    final tag = meal.tags.split(",")[index].trim();
+                    return TagsContainer(tag: tag);
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Ingredients
+              Text(
+                "Ingredients",
+                style: GoogleFonts.epilogue(
+                  color: kTitleColor,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Column(
+                children: ingredientDetails
+                    .map((detail) => IngredientCheckbox(detail: detail))
+                    .toList(),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Instructions
+              Text(
+                "Instructions",
+                style: GoogleFonts.epilogue(
+                  color: kTitleColor,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                meal.instructions,
+                textAlign: TextAlign.justify,
+                style: GoogleFonts.epilogue(
+                  color: kTitleColor,
+                  fontSize: 16,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Ingredient Dropdown
+              DropdownButton<String>(
+                hint: const Text("Select an ingredient to replace"),
+                value: selectedIngredient,
+                isExpanded: true,
+                items: meal.ingeredients.map((ingredient) {
+                  return DropdownMenuItem<String>(
+                    value: ingredient,
+                    child: Text(ingredient),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedIngredient = newValue;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              // Write Review Button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ReviewsPage(mealId: meal.id),
+                    ),
+                  );
+                },
+                child: const Text("Write a Review"),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Favorite Button
+              FavoriteButton(
+                meal: meal,
+                isFavorite: isFavorite,
+              ),
             ],
-          ),
-        ),
+          );
+        },
       ),
     );
   }

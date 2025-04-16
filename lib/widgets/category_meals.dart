@@ -25,6 +25,7 @@ class CategoryMealWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(75),
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.grey.withOpacity(0.3),
                   spreadRadius: 5,
                   blurRadius: 7,

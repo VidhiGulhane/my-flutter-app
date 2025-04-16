@@ -1,9 +1,11 @@
 class Ingrediant {
+  // ignore: non_constant_identifier_names
   String IngrediantName;
   String image;
   String quantity;
 
   Ingrediant({
+    // ignore: non_constant_identifier_names
     required this.IngrediantName,
     required this.image,
     required this.quantity,

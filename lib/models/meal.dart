@@ -1,6 +1,6 @@
 class Meal {
-  String id;
-  String name;
+  final String id;
+  final String name;
   String category;
   String instructions;
   String image;

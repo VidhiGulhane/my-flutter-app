@@ -7,7 +7,7 @@ import 'package:recipe_app/widgets/home_page_widget.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
-  static String id = 'home Page';
+  static String id = 'homePage';
   @override
   State<Home> createState() => _HomeState();
 }
@@ -29,12 +29,12 @@ class _HomeState extends State<Home> {
       backgroundColor: Colors.white,
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-            iconTheme: MaterialStateProperty.all(
+            iconTheme: WidgetStateProperty.all(
               const IconThemeData(
                 color: Colors.black,
               ),
             ),
-            labelTextStyle: MaterialStateProperty.all(const TextStyle(
+            labelTextStyle: WidgetStateProperty.all(const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.black))),

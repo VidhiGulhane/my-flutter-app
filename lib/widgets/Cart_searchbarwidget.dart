@@ -1,11 +1,15 @@
+// ignore: file_names
+// ignore: file_names
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:recipe_app/constants.dart';
 
 class CartSearchBar extends StatefulWidget {
-  const CartSearchBar({Key? key, required this.onSubmitted}) : super(key: key);
+  const CartSearchBar({super.key, required this.onSubmitted});
   final Function(String)? onSubmitted;
 
   @override
+  // ignore: library_private_types_in_public_api
   _CartSearchBarState createState() => _CartSearchBarState();
 }
 
