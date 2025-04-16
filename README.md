@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # Foody - Discover, Save, and Organize Recipes
 ![Banner](https://github.com/aconitum001/Foody-Meals-App/assets/141423029/34e9fbdb-916f-493a-a7ca-e4b01c6dec52)
@@ -44,3 +45,6 @@ To start using Foudiy, simply follow these steps:
 
 ```bash
 git clone https://github.com/aconitum001/Quizzo-flutter-Project.git
+=======
+# my-flutter-app
+>>>>>>> 4f7d89b122e3a56c8d6887c5c98acd1945f697ac
